@@ -6,6 +6,7 @@ import { Button, PostCard } from '../components';
 import type { RootStackParamList } from '../navigation';
 import { usePosts } from '../state/PostsContext';
 import { useAuth } from '../state/AuthContext';
+import { usePantry } from '../state/PantryContext';
 
 type HomeScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Home'>;
@@ -14,6 +15,7 @@ type HomeScreenProps = {
 export function HomeScreen({ navigation }: HomeScreenProps) {
   const { posts } = usePosts();
   const { user } = useAuth();
+  const { isSaved, toggleSave } = usePantry();
 
   const feed = useMemo(() => {
     const sorted = [...posts].sort(
@@ -56,6 +58,12 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
           style={styles.navButton}
         />
         <Button
+          title="Pantry"
+          variant="secondary"
+          onPress={() => navigation.navigate('Pantry')}
+          style={styles.navButton}
+        />
+        <Button
           title="Profile"
           variant="secondary"
           onPress={() => navigation.navigate('Profile')}
@@ -65,7 +73,15 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
       <View style={styles.feedList}>
         {feed.map((post) => (
           <View key={post.postId} style={styles.feedItem}>
-            <PostCard post={post} />
+            <PostCard
+              post={post}
+              showActions
+              saved={isSaved(post.postId)}
+              onToggleSave={() => toggleSave(post.postId)}
+              onCookThis={() =>
+                navigation.navigate('Cook', { postId: post.postId, initialServings: 2 })
+              }
+            />
           </View>
         ))}
       </View>

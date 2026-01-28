@@ -5,15 +5,18 @@ import { RootNavigator } from './src/navigation';
 import { colors } from './src/theme';
 import { AuthProvider } from './src/state/AuthContext';
 import { PostsProvider } from './src/state/PostsContext';
+import { PantryProvider } from './src/state/PantryContext';
 
 export default function App() {
   return (
     <AuthProvider>
       <PostsProvider>
-        <NavigationContainer>
-          <StatusBar style="dark" backgroundColor={colors.backgroundBase} />
-          <RootNavigator />
-        </NavigationContainer>
+        <PantryProvider>
+          <NavigationContainer>
+            <StatusBar style="dark" backgroundColor={colors.backgroundBase} />
+            <RootNavigator />
+          </NavigationContainer>
+        </PantryProvider>
       </PostsProvider>
     </AuthProvider>
   );

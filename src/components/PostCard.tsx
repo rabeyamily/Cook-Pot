@@ -3,12 +3,17 @@ import { View, Text, StyleSheet, Image } from 'react-native';
 import { colors, typography, spacing } from '../theme';
 import { Post } from '../models/post';
 import { Tag } from './Tag';
+import { Button } from './Button';
 
 type PostCardProps = {
   post: Post;
+  showActions?: boolean;
+  saved?: boolean;
+  onToggleSave?: () => void;
+  onCookThis?: () => void;
 };
 
-export function PostCard({ post }: PostCardProps) {
+export function PostCard({ post, showActions = false, saved = false, onToggleSave, onCookThis }: PostCardProps) {
   const primaryUri = post.mediaUris[0];
 
   return (
@@ -36,6 +41,22 @@ export function PostCard({ post }: PostCardProps) {
             <Tag label={post.recipe.cuisine} />
           )}
         </View>
+        {showActions && (
+          <View style={styles.actionsRow}>
+            <Button
+              title={saved ? 'Remove from Pantry' : 'Save to Pantry'}
+              variant="secondary"
+              onPress={onToggleSave}
+              style={styles.actionButton}
+            />
+            <Button
+              title="Cook This"
+              variant="primary"
+              onPress={onCookThis}
+              style={styles.actionButton}
+            />
+          </View>
+        )}
       </View>
     </View>
   );
@@ -87,6 +108,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: spacing.xs,
+  },
+  actionsRow: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    marginTop: spacing.md,
+  },
+  actionButton: {
+    flex: 1,
   },
 });
 
