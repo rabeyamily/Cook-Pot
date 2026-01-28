@@ -2,8 +2,7 @@ import React, { createContext, useContext, useEffect, useState, ReactNode } from
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Alert } from 'react-native';
 import { UserProfile, StoredAuthData, SignUpPayload } from '../models/user';
-
-const STORAGE_KEY = 'cookpot:user';
+import { STORAGE_KEYS } from '../constants';
 
 interface AuthState {
   user: UserProfile | null;
@@ -27,7 +26,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const restore = async () => {
       try {
-        const stored = await AsyncStorage.getItem(STORAGE_KEY);
+        const stored = await AsyncStorage.getItem(STORAGE_KEYS.AUTH);
         if (stored) {
           const parsed: StoredAuthData = JSON.parse(stored);
           setState({ user: parsed.user, isLoading: false });
@@ -45,7 +44,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string) => {
     try {
-      const stored = await AsyncStorage.getItem(STORAGE_KEY);
+      const stored = await AsyncStorage.getItem(STORAGE_KEYS.AUTH);
       if (!stored) {
         throw new Error('No account found. Please sign up.');
       }
@@ -86,7 +85,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
 
     try {
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(authData));
+      await AsyncStorage.setItem(STORAGE_KEYS.AUTH, JSON.stringify(authData));
       setState({ user: newUser, isLoading: false });
     } catch (error) {
       console.warn('Failed to save auth data', error);
@@ -96,7 +95,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     try {
-      await AsyncStorage.removeItem(STORAGE_KEY);
+      await AsyncStorage.removeItem(STORAGE_KEYS.AUTH);
     } finally {
       setState({ user: null, isLoading: false });
     }
@@ -107,13 +106,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const updatedUser: UserProfile = { ...state.user, ...updates };
 
     try {
-      const stored = await AsyncStorage.getItem(STORAGE_KEY);
+      const stored = await AsyncStorage.getItem(STORAGE_KEYS.AUTH);
       const existing: StoredAuthData | null = stored ? JSON.parse(stored) : null;
       const authData: StoredAuthData = {
         user: updatedUser,
         password: existing?.password ?? '',
       };
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(authData));
+      await AsyncStorage.setItem(STORAGE_KEYS.AUTH, JSON.stringify(authData));
       setState((prev) => ({ ...prev, user: updatedUser }));
     } catch (error) {
       console.warn('Failed to update profile', error);

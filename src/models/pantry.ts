@@ -1,3 +1,8 @@
+/**
+ * Pantry and shopping list models.
+ * PantryEntry: saved recipe reference; ShoppingList: scaled ingredients for Cook This flow.
+ */
+
 import type { Post } from './post';
 
 export interface PantryEntry {

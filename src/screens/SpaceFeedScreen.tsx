@@ -7,6 +7,7 @@ import { usePosts } from '../state/PostsContext';
 import { usePantry } from '../state/PantryContext';
 import { getSpaceById } from '../models/space';
 import type { RootStackParamList } from '../navigation';
+import { COPY } from '../constants';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'SpaceFeed'>;
 
@@ -30,7 +31,7 @@ export function SpaceFeedScreen({ route, navigation }: Props) {
   if (!space) {
     return (
       <View style={styles.emptyContainer}>
-        <Text style={styles.emptyText}>Space not found.</Text>
+        <Text style={styles.emptyText}>{COPY.SPACE_NOT_FOUND}</Text>
       </View>
     );
   }
@@ -46,6 +47,11 @@ export function SpaceFeedScreen({ route, navigation }: Props) {
       <Text style={styles.countLabel}>
         {feed.length} recipe{feed.length === 1 ? '' : 's'}
       </Text>
+      {feed.length === 0 ? (
+        <View style={styles.emptyState}>
+          <Text style={styles.emptyText}>{COPY.EMPTY_SPACE_FEED}</Text>
+        </View>
+      ) : (
       <View style={styles.feedList}>
         {feed.map((post) => {
           const parent = post.parentPostId
@@ -73,6 +79,7 @@ export function SpaceFeedScreen({ route, navigation }: Props) {
           );
         })}
       </View>
+      )}
     </ScrollView>
   );
 }
@@ -116,5 +123,9 @@ const styles = StyleSheet.create({
   },
   feedItem: {
     marginBottom: spacing.md,
+  },
+  emptyState: {
+    paddingVertical: spacing.xl,
+    paddingHorizontal: spacing.md,
   },
 });

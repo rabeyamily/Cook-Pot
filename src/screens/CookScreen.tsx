@@ -14,6 +14,7 @@ import { Button } from '../components';
 import { RootStackParamList } from '../navigation';
 import { usePosts } from '../state/PostsContext';
 import { createShoppingListFromPost } from '../models/pantry';
+import { COPY } from '../constants';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Cook'>;
 
@@ -33,7 +34,7 @@ export function CookScreen({ route }: Props) {
   if (!post || !shoppingList) {
     return (
       <View style={styles.emptyContainer}>
-        <Text style={styles.emptyText}>Recipe not found.</Text>
+        <Text style={styles.emptyText}>{COPY.RECIPE_NOT_FOUND}</Text>
       </View>
     );
   }
@@ -89,20 +90,24 @@ export function CookScreen({ route }: Props) {
 
       <Text style={styles.sectionLabel}>Shopping list</Text>
       <View style={styles.list}>
-        {shoppingList.items.map((item) => (
-          <View key={item.id} style={styles.listItem}>
-            <Switch
-              value={!!checkedItems[item.id]}
-              onValueChange={() => toggleItem(item.id)}
-            />
-            <View style={styles.listItemTextWrapper}>
-              <Text style={styles.listItemName}>{item.ingredientName}</Text>
-              {!!item.quantityDisplay && (
-                <Text style={styles.listItemQty}>{item.quantityDisplay}</Text>
-              )}
+        {shoppingList.items.length === 0 ? (
+          <Text style={styles.emptyListText}>No ingredients listed for this recipe.</Text>
+        ) : (
+          shoppingList.items.map((item) => (
+            <View key={item.id} style={styles.listItem}>
+              <Switch
+                value={!!checkedItems[item.id]}
+                onValueChange={() => toggleItem(item.id)}
+              />
+              <View style={styles.listItemTextWrapper}>
+                <Text style={styles.listItemName}>{item.ingredientName}</Text>
+                {!!item.quantityDisplay && (
+                  <Text style={styles.listItemQty}>{item.quantityDisplay}</Text>
+                )}
+              </View>
             </View>
-          </View>
-        ))}
+          ))
+        )}
       </View>
 
       <View style={styles.actionsRow}>
@@ -203,6 +208,11 @@ const styles = StyleSheet.create({
   listItemQty: {
     ...typography.caption,
     color: colors.textSecondary,
+  },
+  emptyListText: {
+    ...typography.body,
+    color: colors.textSecondary,
+    paddingVertical: spacing.sm,
   },
   actionsRow: {
     flexDirection: 'row',

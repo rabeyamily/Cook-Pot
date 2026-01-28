@@ -1,3 +1,8 @@
+/**
+ * User model — profile and auth payloads.
+ * Backend-ready: id, email, username, displayName, preferences.
+ */
+
 export type CookingLevel = 'Beginner' | 'Home Cook' | 'Advanced';
 
 export type DietaryPreference = 'Vegetarian' | 'Vegan' | 'Halal' | 'Keto' | 'None';

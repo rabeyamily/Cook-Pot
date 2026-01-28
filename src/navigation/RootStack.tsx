@@ -2,10 +2,6 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { colors, typography } from '../theme';
 import { getSpaceById } from '../models/space';
-
-function getSpaceTitle(spaceId: string): string {
-  return getSpaceById(spaceId)?.name ?? 'Space';
-}
 import { HomeScreen } from '../screens/HomeScreen';
 import { CreateScreen } from '../screens/CreateScreen';
 import { ProfileScreen } from '../screens/ProfileScreen';
@@ -29,6 +25,10 @@ export type RootStackParamList = {
   PostDetail: { postId: string };
   RemixBuilder: { parentPostId: string };
 };
+
+function getSpaceTitle(spaceId: string): string {
+  return getSpaceById(spaceId)?.name ?? 'Space';
+}
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 

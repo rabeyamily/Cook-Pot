@@ -14,8 +14,7 @@ import { useSettings } from '../state/SettingsContext';
 import { Button, Tag } from '../components';
 import { CookingLevel, DietaryPreference } from '../models/user';
 import { SPACES, getSpaceById } from '../models/space';
-
-const MIN_TOUCH_TARGET = 44;
+import { COPY, MIN_TOUCH_TARGET } from '../constants';
 
 const COOKING_LEVELS: CookingLevel[] = ['Beginner', 'Home Cook', 'Advanced'];
 
@@ -30,7 +29,7 @@ const DIETARY_OPTIONS: DietaryPreference[] = [
 export function ProfileScreen() {
   const { colors, typography, spacing } = useTheme();
   const { user, updateProfile, logout } = useAuth();
-  const { settings, setCreation, setAccessibility } = useSettings();
+  const { settings, setCreation, setAccessibility, setDemo } = useSettings();
   const [isEditing, setIsEditing] = useState(false);
   const [displayName, setDisplayName] = useState(user?.displayName ?? '');
   const [cookingLevel, setCookingLevel] = useState<CookingLevel>(
@@ -85,7 +84,7 @@ export function ProfileScreen() {
   if (!user) {
     return (
       <View style={styles.emptyContainer}>
-        <Text style={styles.emptyText}>No profile loaded.</Text>
+        <Text style={styles.emptyText}>{COPY.NO_PROFILE}</Text>
       </View>
     );
   }
@@ -252,6 +251,21 @@ export function ProfileScreen() {
         </TouchableOpacity>
       </View>
 
+      <Text style={[styles.sectionLabel, styles.sectionLabelTop]}>Demo mode</Text>
+      <Text style={styles.hint}>For presentations. Preloads sample data; disables logout.</Text>
+      <View style={styles.toggleRow}>
+        <TouchableOpacity
+          onPress={() => setDemo({ isDemoMode: !settings.demo.isDemoMode })}
+          style={styles.toggleTouch}
+          activeOpacity={0.8}
+        >
+          <View
+            style={[styles.checkbox, settings.demo.isDemoMode && styles.checkboxChecked]}
+          />
+          <Text style={styles.toggleLabel}>Demo data</Text>
+        </TouchableOpacity>
+      </View>
+
       <View style={styles.divider} />
 
       <Text style={styles.sectionLabel}>Edit profile</Text>
@@ -355,9 +369,10 @@ export function ProfileScreen() {
       )}
 
       <Button
-        title="Log out"
+        title={settings.demo.isDemoMode ? 'Log out (disabled in demo)' : 'Log out'}
         variant="secondary"
         onPress={logout}
+        disabled={settings.demo.isDemoMode}
         style={styles.logoutButton}
       />
     </ScrollView>

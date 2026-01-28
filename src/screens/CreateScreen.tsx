@@ -17,6 +17,7 @@ import { SPACES } from '../models/space';
 import type { RootStackParamList } from '../navigation';
 import type { Post } from '../models/post';
 import type { IngredientItem, RecipeStep } from '../models/post';
+import { MIN_TOUCH_TARGET } from '../constants';
 
 type CreateScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Create'>;
@@ -30,8 +31,6 @@ const DEFAULT_STEPS: RecipeStep[] = [
   { id: 'ds1', order: 1, text: 'Step 1.' },
   { id: 'ds2', order: 2, text: 'Step 2.' },
 ];
-
-const MIN_TOUCH_TARGET = 44;
 
 export function CreateScreen({ navigation }: CreateScreenProps) {
   const { colors, typography, spacing } = useTheme();

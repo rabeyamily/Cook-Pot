@@ -15,6 +15,7 @@ import { usePosts } from '../state/PostsContext';
 import type { RootStackParamList } from '../navigation';
 import type { Post } from '../models/post';
 import type { Difficulty } from '../models/post';
+import { COPY } from '../constants';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'RemixBuilder'>;
 
@@ -42,7 +43,7 @@ export function RemixBuilderScreen({ route, navigation }: Props) {
   if (!parent || !user) {
     return (
       <View style={styles.emptyContainer}>
-        <Text style={styles.emptyText}>Recipe not found.</Text>
+        <Text style={styles.emptyText}>{COPY.RECIPE_NOT_FOUND}</Text>
       </View>
     );
   }

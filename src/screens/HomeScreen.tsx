@@ -7,6 +7,8 @@ import type { RootStackParamList } from '../navigation';
 import { usePosts } from '../state/PostsContext';
 import { useAuth } from '../state/AuthContext';
 import { usePantry } from '../state/PantryContext';
+import { useSettings } from '../state/SettingsContext';
+import { COPY } from '../constants';
 
 type HomeScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Home'>;
@@ -16,6 +18,7 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
   const { posts } = usePosts();
   const { user } = useAuth();
   const { isSaved, toggleSave } = usePantry();
+  const { settings } = useSettings();
 
   const feed = useMemo(() => {
     const sorted = [...posts].sort(
@@ -55,6 +58,11 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
       showsVerticalScrollIndicator={false}
     >
       <Text style={styles.title}>Home</Text>
+      {settings.demo.isDemoMode && (
+        <View style={styles.demoBanner}>
+          <Text style={styles.demoBannerText}>{COPY.DEMO_MODE_BANNER}</Text>
+        </View>
+      )}
       <View style={styles.navRow}>
         <Button
           title="Create"
@@ -88,31 +96,37 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
         />
       </View>
       <View style={styles.feedList}>
-        {feed.map((post) => {
-          const parent = post.parentPostId
-            ? posts.find((p) => p.postId === post.parentPostId)
-            : null;
-          return (
-            <View key={post.postId} style={styles.feedItem}>
-              <PostCard
-                post={post}
-                showActions
-                saved={isSaved(post.postId)}
-                onToggleSave={() => toggleSave(post.postId)}
-                onCookThis={() =>
-                  navigation.navigate('Cook', { postId: post.postId, initialServings: 2 })
-                }
-                onViewPost={(id) => navigation.navigate('PostDetail', { postId: id })}
-                onViewParent={
-                  post.parentPostId
-                    ? (id) => navigation.navigate('PostDetail', { postId: id })
-                    : undefined
-                }
-                parentAuthor={parent?.author}
-              />
-            </View>
-          );
-        })}
+        {feed.length === 0 ? (
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyText}>{COPY.EMPTY_FEED}</Text>
+          </View>
+        ) : (
+          feed.map((post) => {
+            const parent = post.parentPostId
+              ? posts.find((p) => p.postId === post.parentPostId)
+              : null;
+            return (
+              <View key={post.postId} style={styles.feedItem}>
+                <PostCard
+                  post={post}
+                  showActions
+                  saved={isSaved(post.postId)}
+                  onToggleSave={() => toggleSave(post.postId)}
+                  onCookThis={() =>
+                    navigation.navigate('Cook', { postId: post.postId, initialServings: 2 })
+                  }
+                  onViewPost={(id) => navigation.navigate('PostDetail', { postId: id })}
+                  onViewParent={
+                    post.parentPostId
+                      ? (id) => navigation.navigate('PostDetail', { postId: id })
+                      : undefined
+                  }
+                  parentAuthor={parent?.author}
+                />
+              </View>
+            );
+          })
+        )}
       </View>
     </ScrollView>
   );
@@ -145,5 +159,25 @@ const styles = StyleSheet.create({
   },
   feedItem: {
     marginBottom: spacing.md,
+  },
+  demoBanner: {
+    backgroundColor: colors.secondary,
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.sm,
+    borderRadius: 8,
+    marginBottom: spacing.md,
+  },
+  demoBannerText: {
+    ...typography.caption,
+    color: colors.textPrimary,
+  },
+  emptyState: {
+    paddingVertical: spacing.xl,
+    paddingHorizontal: spacing.md,
+  },
+  emptyText: {
+    ...typography.body,
+    color: colors.textSecondary,
+    textAlign: 'center',
   },
 });

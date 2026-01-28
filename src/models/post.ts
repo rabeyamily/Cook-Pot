@@ -1,3 +1,8 @@
+/**
+ * Post and recipe models — cooking content.
+ * Backend-ready: postId, author, mediaUris, recipe, cookingSpaces, createdAt, optional remix/audio flags.
+ */
+
 import type { UserProfile, DietaryPreference } from './user';
 
 export type MediaType = 'video' | 'photo';

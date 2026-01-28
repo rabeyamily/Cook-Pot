@@ -22,6 +22,7 @@ import {
   filterAndRankPosts,
 } from '../utils/postFilters';
 import { DietaryPreference } from '../models/user';
+import { COPY } from '../constants';
 
 const COOK_TIME_OPTIONS: { label: string; value: CookTimeFilter }[] = [
   { label: 'Under 15 min', value: 'under-15' },
@@ -225,6 +226,11 @@ export function DiscoveryScreen() {
           <Text style={styles.sectionLabel}>
             {results.length} recipe{results.length === 1 ? '' : 's'} found
           </Text>
+          {results.length === 0 ? (
+            <View style={styles.emptyState}>
+              <Text style={styles.emptyText}>{COPY.EMPTY_DISCOVERY}</Text>
+            </View>
+          ) : (
           <View style={styles.resultsList}>
             {results.map((post) => {
               const parent = post.parentPostId
@@ -242,10 +248,11 @@ export function DiscoveryScreen() {
                     }
                     parentAuthor={parent?.author}
                   />
-                </View>
-              );
-            })}
+              </View>
+            );
+          })}
           </View>
+          )}
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -339,6 +346,15 @@ const styles = StyleSheet.create({
   },
   resultItem: {
     marginBottom: spacing.md,
+  },
+  emptyState: {
+    paddingVertical: spacing.xl,
+    paddingHorizontal: spacing.md,
+  },
+  emptyText: {
+    ...typography.body,
+    color: colors.textSecondary,
+    textAlign: 'center',
   },
 });
 

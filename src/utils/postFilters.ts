@@ -1,3 +1,8 @@
+/**
+ * Discovery filters: ingredient match, cook time, difficulty, diet, cuisine.
+ * filterAndRankPosts scores by ingredient match (all > some > none) plus recency.
+ */
+
 import { Post, Difficulty } from '../models/post';
 import { DietaryPreference } from '../models/user';
 

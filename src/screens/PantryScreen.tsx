@@ -8,6 +8,7 @@ import { usePosts } from '../state/PostsContext';
 import { RootStackParamList } from '../navigation';
 import { Difficulty } from '../models/post';
 import { DietaryPreference } from '../models/user';
+import { COPY } from '../constants';
 
 type PantryScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Pantry'>;
@@ -152,6 +153,11 @@ export function PantryScreen({ navigation }: PantryScreenProps) {
         <Text style={styles.sectionLabel}>
           {filtered.length} saved recipe{filtered.length === 1 ? '' : 's'}
         </Text>
+        {filtered.length === 0 ? (
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyText}>{COPY.EMPTY_PANTRY}</Text>
+          </View>
+        ) : (
         <View style={styles.list}>
           {filtered.map((post) => {
             const cooked = isCooked(post.postId);
@@ -193,6 +199,7 @@ export function PantryScreen({ navigation }: PantryScreenProps) {
             );
           })}
         </View>
+        )}
       </View>
     </ScrollView>
   );
@@ -267,6 +274,15 @@ const styles = StyleSheet.create({
   },
   cookedToggleButton: {
     alignSelf: 'flex-start',
+  },
+  emptyState: {
+    paddingVertical: spacing.xl,
+    paddingHorizontal: spacing.md,
+  },
+  emptyText: {
+    ...typography.body,
+    color: colors.textSecondary,
+    textAlign: 'center',
   },
 });
 

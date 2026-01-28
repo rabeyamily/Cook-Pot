@@ -5,8 +5,7 @@
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const STORAGE_KEY = 'cookpot:settings';
+import { STORAGE_KEYS } from '../constants';
 
 export interface CreationSettings {
   /** Default ON: countertop framing, no face prompts */
@@ -26,10 +25,20 @@ export interface AccessibilitySettings {
   highContrast: boolean;
 }
 
+/** Demo mode: preload sample data, disable destructive actions (for presentations) */
+export interface DemoSettings {
+  isDemoMode: boolean;
+}
+
 export interface SettingsState {
   creation: CreationSettings;
   accessibility: AccessibilitySettings;
+  demo: DemoSettings;
 }
+
+const DEFAULT_DEMO: DemoSettings = {
+  isDemoMode: false,
+};
 
 const DEFAULT_CREATION: CreationSettings = {
   handsOnlyMode: true,
@@ -46,6 +55,7 @@ const DEFAULT_ACCESSIBILITY: AccessibilitySettings = {
 const DEFAULT_SETTINGS: SettingsState = {
   creation: DEFAULT_CREATION,
   accessibility: DEFAULT_ACCESSIBILITY,
+  demo: DEFAULT_DEMO,
 };
 
 interface SettingsContextValue {
@@ -53,6 +63,7 @@ interface SettingsContextValue {
   isLoading: boolean;
   setCreation: (updates: Partial<CreationSettings>) => Promise<void>;
   setAccessibility: (updates: Partial<AccessibilitySettings>) => Promise<void>;
+  setDemo: (updates: Partial<DemoSettings>) => Promise<void>;
 }
 
 const SettingsContext = createContext<SettingsContextValue | undefined>(undefined);
@@ -64,12 +75,13 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const restore = async () => {
       try {
-        const stored = await AsyncStorage.getItem(STORAGE_KEY);
+        const stored = await AsyncStorage.getItem(STORAGE_KEYS.SETTINGS);
         if (stored) {
           const parsed = JSON.parse(stored) as Partial<SettingsState>;
           setSettings({
             creation: { ...DEFAULT_CREATION, ...parsed.creation },
             accessibility: { ...DEFAULT_ACCESSIBILITY, ...parsed.accessibility },
+            demo: { ...DEFAULT_DEMO, ...parsed.demo },
           });
         }
       } catch (error) {
@@ -84,7 +96,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   const persist = async (next: SettingsState) => {
     setSettings(next);
     try {
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      await AsyncStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(next));
     } catch (error) {
       console.warn('Failed to persist settings', error);
     }
@@ -104,6 +116,13 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     });
   };
 
+  const setDemo = async (updates: Partial<DemoSettings>) => {
+    await persist({
+      ...settings,
+      demo: { ...settings.demo, ...updates },
+    });
+  };
+
   return (
     <SettingsContext.Provider
       value={{
@@ -111,6 +130,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
         isLoading,
         setCreation,
         setAccessibility,
+        setDemo,
       }}
     >
       {children}

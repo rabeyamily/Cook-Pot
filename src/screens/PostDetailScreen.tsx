@@ -7,6 +7,7 @@ import { usePosts } from '../state/PostsContext';
 import { usePantry } from '../state/PantryContext';
 import type { RootStackParamList } from '../navigation';
 import { PostCard } from '../components';
+import { COPY } from '../constants';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'PostDetail'>;
 
@@ -28,7 +29,7 @@ export function PostDetailScreen({ route, navigation }: Props) {
   if (!post) {
     return (
       <View style={styles.emptyContainer}>
-        <Text style={styles.emptyText}>Recipe not found.</Text>
+        <Text style={styles.emptyText}>{COPY.RECIPE_NOT_FOUND}</Text>
       </View>
     );
   }

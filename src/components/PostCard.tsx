@@ -36,7 +36,8 @@ function isEmojiOnly(str: string): boolean {
   return trimmed.length <= 4 && noLetters.test(trimmed);
 }
 
-export function PostCard({
+/** Memoized for smooth scrolling in feed lists */
+export const PostCard = React.memo(function PostCard({
   post,
   showActions = false,
   saved = false,
@@ -46,7 +47,7 @@ export function PostCard({
   onViewParent,
   parentAuthor,
 }: PostCardProps) {
-  const primaryUri = post.mediaUris[0];
+  const primaryUri = post.mediaUris?.[0];
   const { getReactionsForPost, getMyReactionsForPost, toggleReaction, getCommentsForPost, addComment } =
     useEngagement();
   const { isCooked, markAsCooked } = usePantry();
@@ -72,7 +73,11 @@ export function PostCard({
   return (
     <View style={styles.card}>
       <View style={styles.mediaWrapper}>
-        <Image source={{ uri: primaryUri }} style={styles.media} />
+        {primaryUri ? (
+          <Image source={{ uri: primaryUri }} style={styles.media} />
+        ) : (
+          <View style={styles.mediaPlaceholder} />
+        )}
         <View style={styles.mediaTypeBadge}>
           <Text style={styles.mediaTypeText}>
             {post.mediaType === 'video' ? 'Video' : 'Photo'}
@@ -202,7 +207,7 @@ export function PostCard({
       </View>
     </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   card: {
@@ -219,6 +224,12 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 220,
     backgroundColor: colors.secondary,
+  },
+  mediaPlaceholder: {
+    width: '100%',
+    height: 220,
+    backgroundColor: colors.secondary,
+    opacity: 0.6,
   },
   mediaTypeBadge: {
     position: 'absolute',
