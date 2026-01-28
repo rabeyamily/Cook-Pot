@@ -4,11 +4,13 @@ import { colors, typography } from '../theme';
 import { HomeScreen } from '../screens/HomeScreen';
 import { CreateScreen } from '../screens/CreateScreen';
 import { ProfileScreen } from '../screens/ProfileScreen';
+import { DiscoveryScreen } from '../screens/DiscoveryScreen';
 
 export type RootStackParamList = {
   Home: undefined;
   Create: undefined;
   Profile: undefined;
+  Discovery: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -27,6 +29,11 @@ export function RootStack() {
       <Stack.Screen name="Home" component={HomeScreen} />
       <Stack.Screen name="Create" component={CreateScreen} />
       <Stack.Screen name="Profile" component={ProfileScreen} />
+      <Stack.Screen
+        name="Discovery"
+        component={DiscoveryScreen}
+        options={{ title: 'Discover' }}
+      />
     </Stack.Navigator>
   );
 }

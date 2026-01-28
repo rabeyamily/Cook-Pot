@@ -1,22 +1,40 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { colors, typography, spacing } from '../theme';
-import { CookingCard, Button } from '../components';
+import { Button, PostCard } from '../components';
 import type { RootStackParamList } from '../navigation';
-
-/** Placeholder dummy data for Phase 0 — no business logic */
-const DUMMY_CARDS = [
-  { id: '1', title: 'Simple Pasta Aglio e Olio', tags: ['Pasta', 'Quick'] },
-  { id: '2', title: 'Roasted Vegetables', tags: ['Vegetarian', 'Oven'] },
-  { id: '3', title: 'Homemade Soup', tags: ['Comfort', 'One Pot'] },
-];
+import { usePosts } from '../state/PostsContext';
+import { useAuth } from '../state/AuthContext';
 
 type HomeScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Home'>;
 };
 
 export function HomeScreen({ navigation }: HomeScreenProps) {
+  const { posts } = usePosts();
+  const { user } = useAuth();
+
+  const feed = useMemo(() => {
+    const sorted = [...posts].sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
+
+    if (!user || !user.dietaryPreferences || user.dietaryPreferences.length === 0) {
+      return sorted;
+    }
+
+    const prefs = user.dietaryPreferences;
+    const preferred = sorted.filter((post) =>
+      (post.recipe.dietTags ?? []).some((tag) => prefs.includes(tag)),
+    );
+    const others = sorted.filter(
+      (post) => !preferred.some((p) => p.postId === post.postId),
+    );
+
+    return [...preferred, ...others];
+  }, [posts, user]);
+
   return (
     <ScrollView
       style={styles.container}
@@ -32,19 +50,23 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
           style={styles.navButton}
         />
         <Button
+          title="Discover"
+          variant="secondary"
+          onPress={() => navigation.navigate('Discovery')}
+          style={styles.navButton}
+        />
+        <Button
           title="Profile"
           variant="secondary"
           onPress={() => navigation.navigate('Profile')}
           style={styles.navButton}
         />
       </View>
-      <View style={styles.cardList}>
-        {DUMMY_CARDS.map((card) => (
-          <CookingCard
-            key={card.id}
-            title={card.title}
-            tags={card.tags}
-          />
+      <View style={styles.feedList}>
+        {feed.map((post) => (
+          <View key={post.postId} style={styles.feedItem}>
+            <PostCard post={post} />
+          </View>
         ))}
       </View>
     </ScrollView>
@@ -73,7 +95,10 @@ const styles = StyleSheet.create({
   navButton: {
     flex: 1,
   },
-  cardList: {
+  feedList: {
     gap: spacing.md,
+  },
+  feedItem: {
+    marginBottom: spacing.md,
   },
 });
