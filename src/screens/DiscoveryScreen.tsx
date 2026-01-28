@@ -8,10 +8,13 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { colors, typography, spacing } from '../theme';
 import { Button, PostCard, Tag } from '../components';
 import { usePosts, getAvailableDietTags } from '../state/PostsContext';
 import { useAuth } from '../state/AuthContext';
+import type { RootStackParamList } from '../navigation';
 import {
   CookTimeFilter,
   Difficulty,
@@ -29,6 +32,7 @@ const COOK_TIME_OPTIONS: { label: string; value: CookTimeFilter }[] = [
 const DIFFICULTY_OPTIONS: Difficulty[] = ['Easy', 'Medium', 'Hard'];
 
 export function DiscoveryScreen() {
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList, 'Discovery'>>();
   const { posts } = usePosts();
   const { user } = useAuth();
 
@@ -222,11 +226,25 @@ export function DiscoveryScreen() {
             {results.length} recipe{results.length === 1 ? '' : 's'} found
           </Text>
           <View style={styles.resultsList}>
-            {results.map((post) => (
-              <View key={post.postId} style={styles.resultItem}>
-                <PostCard post={post} />
-              </View>
-            ))}
+            {results.map((post) => {
+              const parent = post.parentPostId
+                ? posts.find((p) => p.postId === post.parentPostId)
+                : null;
+              return (
+                <View key={post.postId} style={styles.resultItem}>
+                  <PostCard
+                    post={post}
+                    onViewPost={(id) => navigation.navigate('PostDetail', { postId: id })}
+                    onViewParent={
+                      post.parentPostId
+                        ? (id) => navigation.navigate('PostDetail', { postId: id })
+                        : undefined
+                    }
+                    parentAuthor={parent?.author}
+                  />
+                </View>
+              );
+            })}
           </View>
         </View>
       </ScrollView>

@@ -14,6 +14,8 @@ import { PantryScreen } from '../screens/PantryScreen';
 import { CookScreen } from '../screens/CookScreen';
 import { SpacesScreen } from '../screens/SpacesScreen';
 import { SpaceFeedScreen } from '../screens/SpaceFeedScreen';
+import { PostDetailScreen } from '../screens/PostDetailScreen';
+import { RemixBuilderScreen } from '../screens/RemixBuilderScreen';
 
 export type RootStackParamList = {
   Home: undefined;
@@ -24,6 +26,8 @@ export type RootStackParamList = {
   Spaces: undefined;
   SpaceFeed: { spaceId: string };
   Cook: { postId: string; initialServings?: number };
+  PostDetail: { postId: string };
+  RemixBuilder: { parentPostId: string };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -66,6 +70,16 @@ export function RootStack() {
         name="SpaceFeed"
         component={SpaceFeedScreen}
         options={({ route }) => ({ title: getSpaceTitle(route.params.spaceId) })}
+      />
+      <Stack.Screen
+        name="PostDetail"
+        component={PostDetailScreen}
+        options={{ title: 'Recipe' }}
+      />
+      <Stack.Screen
+        name="RemixBuilder"
+        component={RemixBuilderScreen}
+        options={{ title: 'Remix recipe' }}
       />
     </Stack.Navigator>
   );

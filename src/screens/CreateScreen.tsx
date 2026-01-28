@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, TextInput, ScrollView, TouchableOpacity } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { colors, typography, spacing } from '../theme';
 import { Button, Tag } from '../components';
@@ -28,6 +28,7 @@ export function CreateScreen({ navigation }: CreateScreenProps) {
   const { addPost } = usePosts();
   const [dishName, setDishName] = useState('');
   const [selectedSpaceIds, setSelectedSpaceIds] = useState<string[]>([]);
+  const [isExperiment, setIsExperiment] = useState(false);
   const [publishing, setPublishing] = useState(false);
 
   const toggleSpace = (spaceId: string) => {
@@ -59,12 +60,14 @@ export function CreateScreen({ navigation }: CreateScreenProps) {
         dietTags: user.dietaryPreferences?.length ? user.dietaryPreferences : undefined,
       },
       cookingSpaces: [...selectedSpaceIds],
+      isExperiment,
       createdAt: new Date().toISOString(),
     };
     addPost(post);
     setPublishing(false);
     setDishName('');
     setSelectedSpaceIds([]);
+    setIsExperiment(false);
     navigation.navigate('Home');
   };
 
@@ -101,6 +104,17 @@ export function CreateScreen({ navigation }: CreateScreenProps) {
             />
           ))}
         </View>
+      </View>
+
+      <View style={styles.fieldGroup}>
+        <TouchableOpacity
+          onPress={() => setIsExperiment((e) => !e)}
+          style={styles.experimentRow}
+        >
+          <View style={[styles.checkbox, isExperiment && styles.checkboxChecked]} />
+          <Text style={styles.experimentLabel}>This is an experiment</Text>
+        </TouchableOpacity>
+        <Text style={styles.hint}>Experiments are not failures. Mark when you're still testing.</Text>
       </View>
 
       <Button
@@ -159,6 +173,26 @@ const styles = StyleSheet.create({
   },
   spaceTag: {
     marginRight: 0,
+  },
+  experimentRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  checkbox: {
+    width: 22,
+    height: 22,
+    borderRadius: 4,
+    borderWidth: 2,
+    borderColor: colors.border,
+  },
+  checkboxChecked: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+  },
+  experimentLabel: {
+    ...typography.body,
+    color: colors.textPrimary,
   },
   publishButton: {
     marginTop: spacing.md,

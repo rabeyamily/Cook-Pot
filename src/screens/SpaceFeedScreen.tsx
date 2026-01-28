@@ -47,19 +47,31 @@ export function SpaceFeedScreen({ route, navigation }: Props) {
         {feed.length} recipe{feed.length === 1 ? '' : 's'}
       </Text>
       <View style={styles.feedList}>
-        {feed.map((post) => (
-          <View key={post.postId} style={styles.feedItem}>
-            <PostCard
-              post={post}
-              showActions
-              saved={isSaved(post.postId)}
-              onToggleSave={() => toggleSave(post.postId)}
-              onCookThis={() =>
-                navigation.navigate('Cook', { postId: post.postId, initialServings: 2 })
-              }
-            />
-          </View>
-        ))}
+        {feed.map((post) => {
+          const parent = post.parentPostId
+            ? posts.find((p) => p.postId === post.parentPostId)
+            : null;
+          return (
+            <View key={post.postId} style={styles.feedItem}>
+              <PostCard
+                post={post}
+                showActions
+                saved={isSaved(post.postId)}
+                onToggleSave={() => toggleSave(post.postId)}
+                onCookThis={() =>
+                  navigation.navigate('Cook', { postId: post.postId, initialServings: 2 })
+                }
+                onViewPost={(id) => navigation.navigate('PostDetail', { postId: id })}
+                onViewParent={
+                  post.parentPostId
+                    ? (id) => navigation.navigate('PostDetail', { postId: id })
+                    : undefined
+                }
+                parentAuthor={parent?.author}
+              />
+            </View>
+          );
+        })}
       </View>
     </ScrollView>
   );

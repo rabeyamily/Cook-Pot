@@ -36,6 +36,10 @@ export interface Post {
   recipe: RecipeCard;
   /** At least one, up to two Cooking Space IDs */
   cookingSpaces: string[];
+  /** Marked as experiment; not treated as failure */
+  isExperiment?: boolean;
+  /** Set when this post is a remix; original is always credited */
+  parentPostId?: string | null;
   createdAt: string; // ISO string for easy backend migration later
 }
 

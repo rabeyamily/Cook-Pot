@@ -68,6 +68,7 @@ const MOCK_POSTS: Post[] = [
       cuisine: 'European',
     },
     cookingSpaces: ['plant-forward', 'comfort-food'],
+    isExperiment: true,
     createdAt: new Date(Date.now() - 1000 * 60 * 60).toISOString(),
   },
   {

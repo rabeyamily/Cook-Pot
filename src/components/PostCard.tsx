@@ -22,6 +22,11 @@ type PostCardProps = {
   saved?: boolean;
   onToggleSave?: () => void;
   onCookThis?: () => void;
+  /** Open recipe detail */
+  onViewPost?: (postId: string) => void;
+  /** Open parent recipe (for remixes); pass parent author for "Inspired by" */
+  onViewParent?: (parentPostId: string) => void;
+  parentAuthor?: { displayName: string };
 };
 
 function isEmojiOnly(str: string): boolean {
@@ -37,6 +42,9 @@ export function PostCard({
   saved = false,
   onToggleSave,
   onCookThis,
+  onViewPost,
+  onViewParent,
+  parentAuthor,
 }: PostCardProps) {
   const primaryUri = post.mediaUris[0];
   const { getReactionsForPost, getMyReactionsForPost, toggleReaction, getCommentsForPost, addComment } =
@@ -77,9 +85,29 @@ export function PostCard({
         )}
       </View>
       <View style={styles.content}>
-        <Text style={styles.dishName} numberOfLines={2}>
-          {post.recipe.dishName}
-        </Text>
+        {post.parentPostId && parentAuthor && (
+          <TouchableOpacity
+            onPress={() => onViewParent?.(post.parentPostId!)}
+            style={styles.inspiredRow}
+          >
+            <Text style={styles.inspiredLabel}>Inspired by </Text>
+            <Text style={styles.inspiredName}>{parentAuthor.displayName}</Text>
+          </TouchableOpacity>
+        )}
+        {post.isExperiment && (
+          <View style={styles.experimentBadge}>
+            <Text style={styles.experimentText}>Experiment</Text>
+          </View>
+        )}
+        <TouchableOpacity
+          onPress={() => onViewPost?.(post.postId)}
+          disabled={!onViewPost}
+          activeOpacity={onViewPost ? 0.7 : 1}
+        >
+          <Text style={styles.dishName} numberOfLines={2}>
+            {post.recipe.dishName}
+          </Text>
+        </TouchableOpacity>
         <Text style={styles.meta}>
           {post.recipe.estimatedCookTimeMinutes} min • {post.recipe.difficulty}
         </Text>
@@ -225,6 +253,29 @@ const styles = StyleSheet.create({
     ...typography.title,
     color: colors.textPrimary,
     marginBottom: spacing.xs,
+  },
+  inspiredRow: {
+    marginBottom: spacing.xs,
+  },
+  inspiredLabel: {
+    ...typography.caption,
+    color: colors.textSecondary,
+  },
+  inspiredName: {
+    ...typography.caption,
+    color: colors.primary,
+  },
+  experimentBadge: {
+    alignSelf: 'flex-start',
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.sm,
+    borderRadius: 6,
+    backgroundColor: colors.secondary,
+    marginBottom: spacing.xs,
+  },
+  experimentText: {
+    ...typography.caption,
+    color: colors.textPrimary,
   },
   meta: {
     ...typography.caption,

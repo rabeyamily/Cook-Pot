@@ -155,6 +155,9 @@ export function PantryScreen({ navigation }: PantryScreenProps) {
         <View style={styles.list}>
           {filtered.map((post) => {
             const cooked = isCooked(post.postId);
+            const parent = post.parentPostId
+              ? posts.find((p) => p.postId === post.parentPostId)
+              : null;
             return (
               <View key={post.postId} style={styles.item}>
                 <View style={styles.statusRow}>
@@ -170,6 +173,13 @@ export function PantryScreen({ navigation }: PantryScreenProps) {
                   onCookThis={() =>
                     navigation.navigate('Cook', { postId: post.postId, initialServings: 2 })
                   }
+                  onViewPost={(id) => navigation.navigate('PostDetail', { postId: id })}
+                  onViewParent={
+                    post.parentPostId
+                      ? (id) => navigation.navigate('PostDetail', { postId: id })
+                      : undefined
+                  }
+                  parentAuthor={parent?.author}
                 />
                 <View style={styles.cookedToggleRow}>
                   <Button
