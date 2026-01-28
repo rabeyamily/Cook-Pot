@@ -73,6 +73,8 @@ export function RemixBuilderScreen({ route, navigation }: Props) {
       },
       cookingSpaces: [...parent.cookingSpaces],
       parentPostId,
+      isMuted: parent.isMuted,
+      hasVoiceOver: parent.hasVoiceOver,
       createdAt: new Date().toISOString(),
     };
 
@@ -92,6 +94,9 @@ export function RemixBuilderScreen({ route, navigation }: Props) {
       <View style={styles.attribution}>
         <Text style={styles.attributionText}>Inspired by {parent.author.displayName}</Text>
       </View>
+      <Text style={styles.supportive}>
+        No need to be perfect. Experiments welcome. Home kitchens encouraged.
+      </Text>
 
       <View style={styles.fieldGroup}>
         <Text style={styles.label}>Dish name</Text>
@@ -182,6 +187,11 @@ const styles = StyleSheet.create({
   attributionText: {
     ...typography.caption,
     color: colors.textSecondary,
+  },
+  supportive: {
+    ...typography.body,
+    color: colors.textSecondary,
+    marginBottom: spacing.lg,
   },
   fieldGroup: {
     marginBottom: spacing.md,

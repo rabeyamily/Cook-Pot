@@ -1,10 +1,21 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, TextInput, ScrollView } from 'react-native';
-import { colors, typography, spacing } from '../theme';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  TextInput,
+  ScrollView,
+  TouchableOpacity,
+} from 'react-native';
+import { useTheme, type Theme } from '../theme';
 import { useAuth } from '../state/AuthContext';
+import { useSettings } from '../state/SettingsContext';
 import { Button, Tag } from '../components';
 import { CookingLevel, DietaryPreference } from '../models/user';
 import { SPACES, getSpaceById } from '../models/space';
+
+const MIN_TOUCH_TARGET = 44;
 
 const COOKING_LEVELS: CookingLevel[] = ['Beginner', 'Home Cook', 'Advanced'];
 
@@ -17,7 +28,9 @@ const DIETARY_OPTIONS: DietaryPreference[] = [
 ];
 
 export function ProfileScreen() {
+  const { colors, typography, spacing } = useTheme();
   const { user, updateProfile, logout } = useAuth();
+  const { settings, setCreation, setAccessibility } = useSettings();
   const [isEditing, setIsEditing] = useState(false);
   const [displayName, setDisplayName] = useState(user?.displayName ?? '');
   const [cookingLevel, setCookingLevel] = useState<CookingLevel>(
@@ -30,14 +43,6 @@ export function ProfileScreen() {
     user?.preferredSpaces ?? [],
   );
   const [saving, setSaving] = useState(false);
-
-  if (!user) {
-    return (
-      <View style={styles.emptyContainer}>
-        <Text style={styles.emptyText}>No profile loaded.</Text>
-      </View>
-    );
-  }
 
   const toggleDietary = (pref: DietaryPreference) => {
     setDietaryPreferences((current) => {
@@ -75,6 +80,15 @@ export function ProfileScreen() {
   };
 
   const savedRecipesCount = 12; // static placeholder
+  const styles = makeStyles(colors, typography, spacing);
+
+  if (!user) {
+    return (
+      <View style={styles.emptyContainer}>
+        <Text style={styles.emptyText}>No profile loaded.</Text>
+      </View>
+    );
+  }
 
   return (
     <ScrollView
@@ -135,6 +149,107 @@ export function ProfileScreen() {
       <View style={styles.section}>
         <Text style={styles.sectionLabel}>Saved recipes</Text>
         <Text style={styles.savedCount}>{savedRecipesCount}</Text>
+      </View>
+
+      <View style={styles.divider} />
+
+      <Text style={styles.sectionLabel}>Accessibility</Text>
+      <View style={styles.toggleRow}>
+        <TouchableOpacity
+          onPress={() => setAccessibility({ largerText: !settings.accessibility.largerText })}
+          style={styles.toggleTouch}
+          activeOpacity={0.8}
+        >
+          <View
+            style={[
+              styles.checkbox,
+              settings.accessibility.largerText && styles.checkboxChecked,
+            ]}
+          />
+          <Text style={styles.toggleLabel}>Larger text</Text>
+        </TouchableOpacity>
+      </View>
+      <View style={styles.toggleRow}>
+        <TouchableOpacity
+          onPress={() =>
+            setAccessibility({ highContrast: !settings.accessibility.highContrast })
+          }
+          style={styles.toggleTouch}
+          activeOpacity={0.8}
+        >
+          <View
+            style={[
+              styles.checkbox,
+              settings.accessibility.highContrast && styles.checkboxChecked,
+            ]}
+          />
+          <Text style={styles.toggleLabel}>High contrast</Text>
+        </TouchableOpacity>
+      </View>
+
+      <Text style={[styles.sectionLabel, styles.sectionLabelTop]}>Creation & filming</Text>
+      <View style={styles.toggleRow}>
+        <TouchableOpacity
+          onPress={() =>
+            setCreation({ handsOnlyMode: !settings.creation.handsOnlyMode })
+          }
+          style={styles.toggleTouch}
+          activeOpacity={0.8}
+        >
+          <View
+            style={[
+              styles.checkbox,
+              settings.creation.handsOnlyMode && styles.checkboxChecked,
+            ]}
+          />
+          <Text style={styles.toggleLabel}>Hands-only mode (countertop focus)</Text>
+        </TouchableOpacity>
+      </View>
+      <View style={styles.toggleRow}>
+        <TouchableOpacity
+          onPress={() => setCreation({ angleGrid: !settings.creation.angleGrid })}
+          style={styles.toggleTouch}
+          activeOpacity={0.8}
+        >
+          <View
+            style={[styles.checkbox, settings.creation.angleGrid && styles.checkboxChecked]}
+          />
+          <Text style={styles.toggleLabel}>Angle grid</Text>
+        </TouchableOpacity>
+      </View>
+      <View style={styles.toggleRow}>
+        <TouchableOpacity
+          onPress={() =>
+            setCreation({ lightingHint: !settings.creation.lightingHint })
+          }
+          style={styles.toggleTouch}
+          activeOpacity={0.8}
+        >
+          <View
+            style={[
+              styles.checkbox,
+              settings.creation.lightingHint && styles.checkboxChecked,
+            ]}
+          />
+          <Text style={styles.toggleLabel}>Lighting hint</Text>
+        </TouchableOpacity>
+      </View>
+      <View style={styles.toggleRow}>
+        <TouchableOpacity
+          onPress={() =>
+            setCreation({ stabilityReminder: !settings.creation.stabilityReminder })
+          }
+          style={styles.toggleTouch}
+          activeOpacity={0.8}
+        >
+          <View
+            style={[
+              styles.checkbox,
+              settings.creation.stabilityReminder && styles.checkboxChecked,
+            ]}
+          />
+          <Text style={styles.toggleLabel}>Stability reminder</Text>
+        </TouchableOpacity>
       </View>
 
       <View style={styles.divider} />
@@ -249,146 +364,180 @@ export function ProfileScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.backgroundBase,
-  },
-  content: {
-    padding: spacing.lg,
-    paddingBottom: spacing.xxl,
-  },
-  emptyContainer: {
-    flex: 1,
-    backgroundColor: colors.backgroundBase,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  emptyText: {
-    ...typography.body,
-    color: colors.textSecondary,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: spacing.lg,
-  },
-  avatarWrapper: {
-    marginRight: spacing.md,
-  },
-  avatar: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-  },
-  avatarPlaceholder: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: colors.secondary,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  avatarInitials: {
-    ...typography.title,
-    color: colors.textPrimary,
-  },
-  headerText: {
-    flex: 1,
-  },
-  displayName: {
-    ...typography.titleLarge,
-    color: colors.textPrimary,
-  },
-  username: {
-    ...typography.caption,
-    color: colors.textSecondary,
-    marginTop: spacing.xs,
-  },
-  section: {
-    marginBottom: spacing.md,
-  },
-  sectionLabel: {
-    ...typography.caption,
-    color: colors.textSecondary,
-    marginBottom: spacing.xs,
-  },
-  badgeRow: {
-    flexDirection: 'row',
-  },
-  levelBadge: {
-    paddingVertical: spacing.xs,
-    paddingHorizontal: spacing.sm,
-    borderRadius: 999,
-    backgroundColor: colors.primary,
-  },
-  levelBadgeText: {
-    ...typography.caption,
-    color: colors.backgroundBase,
-  },
-  tagsRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: spacing.xs,
-  },
-  savedCount: {
-    ...typography.body,
-    color: colors.textPrimary,
-  },
-  divider: {
-    height: 1,
-    backgroundColor: colors.border,
-    marginVertical: spacing.lg,
-  },
-  fieldGroup: {
-    marginBottom: spacing.md,
-  },
-  label: {
-    ...typography.caption,
-    color: colors.textSecondary,
-    marginBottom: spacing.xs,
-  },
-  hint: {
-    ...typography.caption,
-    color: colors.textSecondary,
-    marginBottom: spacing.sm,
-  },
-  input: {
-    ...typography.body,
-    backgroundColor: colors.backgroundMint,
-    borderRadius: 8,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-    color: colors.textPrimary,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  levelRow: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-  },
-  levelButton: {
-    flex: 1,
-  },
-  tag: {
-    marginRight: 0,
-  },
-  tagSelected: {
-    backgroundColor: colors.primary,
-  },
-  actionsRow: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-    marginTop: spacing.md,
-  },
-  actionButton: {
-    flex: 1,
-  },
-  editButton: {
-    marginTop: spacing.sm,
-  },
-  logoutButton: {
-    marginTop: spacing.lg,
-  },
-});
+function makeStyles(
+  colors: Theme['colors'],
+  typography: Theme['typography'],
+  spacing: Theme['spacing'],
+) {
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.backgroundBase,
+    },
+    content: {
+      padding: spacing.lg,
+      paddingBottom: spacing.xxl,
+    },
+    emptyContainer: {
+      flex: 1,
+      backgroundColor: colors.backgroundBase,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    emptyText: {
+      ...typography.body,
+      color: colors.textSecondary,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: spacing.lg,
+    },
+    avatarWrapper: {
+      marginRight: spacing.md,
+    },
+    avatar: {
+      width: 72,
+      height: 72,
+      borderRadius: 36,
+    },
+    avatarPlaceholder: {
+      width: 72,
+      height: 72,
+      borderRadius: 36,
+      backgroundColor: colors.secondary,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    avatarInitials: {
+      ...typography.title,
+      color: colors.textPrimary,
+    },
+    headerText: {
+      flex: 1,
+    },
+    displayName: {
+      ...typography.titleLarge,
+      color: colors.textPrimary,
+    },
+    username: {
+      ...typography.caption,
+      color: colors.textSecondary,
+      marginTop: spacing.xs,
+    },
+    section: {
+      marginBottom: spacing.md,
+    },
+    sectionLabel: {
+      ...typography.caption,
+      color: colors.textSecondary,
+      marginBottom: spacing.xs,
+    },
+    sectionLabelTop: {
+      marginTop: spacing.sm,
+    },
+    toggleRow: {
+      marginBottom: spacing.xs,
+    },
+    toggleTouch: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+      minHeight: MIN_TOUCH_TARGET,
+      paddingVertical: spacing.xs,
+    },
+    toggleLabel: {
+      ...typography.body,
+      color: colors.textPrimary,
+    },
+    checkbox: {
+      width: 22,
+      height: 22,
+      borderRadius: 4,
+      borderWidth: 2,
+      borderColor: colors.border,
+    },
+    checkboxChecked: {
+      backgroundColor: colors.primary,
+      borderColor: colors.primary,
+    },
+    badgeRow: {
+      flexDirection: 'row',
+    },
+    levelBadge: {
+      paddingVertical: spacing.xs,
+      paddingHorizontal: spacing.sm,
+      borderRadius: 999,
+      backgroundColor: colors.primary,
+    },
+    levelBadgeText: {
+      ...typography.caption,
+      color: colors.backgroundBase,
+    },
+    tagsRow: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: spacing.xs,
+    },
+    savedCount: {
+      ...typography.body,
+      color: colors.textPrimary,
+    },
+    divider: {
+      height: 1,
+      backgroundColor: colors.border,
+      marginVertical: spacing.lg,
+    },
+    fieldGroup: {
+      marginBottom: spacing.md,
+    },
+    label: {
+      ...typography.caption,
+      color: colors.textSecondary,
+      marginBottom: spacing.xs,
+    },
+    hint: {
+      ...typography.caption,
+      color: colors.textSecondary,
+      marginBottom: spacing.sm,
+    },
+    input: {
+      ...typography.body,
+      backgroundColor: colors.backgroundMint,
+      borderRadius: 8,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+      color: colors.textPrimary,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    levelRow: {
+      flexDirection: 'row',
+      gap: spacing.sm,
+    },
+    levelButton: {
+      flex: 1,
+    },
+    tag: {
+      marginRight: 0,
+    },
+    tagSelected: {
+      backgroundColor: colors.primary,
+    },
+    actionsRow: {
+      flexDirection: 'row',
+      gap: spacing.sm,
+      marginTop: spacing.md,
+    },
+    actionButton: {
+      flex: 1,
+    },
+    editButton: {
+      marginTop: spacing.sm,
+    },
+    logoutButton: {
+      marginTop: spacing.lg,
+    },
+  });
+}
 

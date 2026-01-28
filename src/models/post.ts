@@ -16,6 +16,8 @@ export interface RecipeStep {
   order: number;
   text: string;
   timestampSeconds?: number; // optional step-synced video timestamp
+  /** Optional caption for muted / step-text-only videos */
+  caption?: string;
 }
 
 export interface RecipeCard {
@@ -40,6 +42,10 @@ export interface Post {
   isExperiment?: boolean;
   /** Set when this post is a remix; original is always credited */
   parentPostId?: string | null;
+  /** Video is muted; step text / captions only (no voice required) */
+  isMuted?: boolean;
+  /** Has voice-over narration (optional; never required) */
+  hasVoiceOver?: boolean;
   createdAt: string; // ISO string for easy backend migration later
 }
 
