@@ -16,7 +16,7 @@ type PantryScreenProps = {
 const DIFFICULTY_OPTIONS: Difficulty[] = ['Easy', 'Medium', 'Hard'];
 
 export function PantryScreen({ navigation }: PantryScreenProps) {
-  const { entries, remove, isSaved, toggleSave } = usePantry();
+  const { entries, isSaved, isCooked, markAsCooked, unmarkCooked, toggleSave } = usePantry();
   const { posts } = usePosts();
 
   const [cookTimeFilter, setCookTimeFilter] = useState<'under-15' | 'under-30' | 'over-30' | undefined>(undefined);
@@ -153,19 +153,35 @@ export function PantryScreen({ navigation }: PantryScreenProps) {
           {filtered.length} saved recipe{filtered.length === 1 ? '' : 's'}
         </Text>
         <View style={styles.list}>
-          {filtered.map((post) => (
-            <View key={post.postId} style={styles.item}>
-              <PostCard
-                post={post}
-                showActions
-                saved={isSaved(post.postId)}
-                onToggleSave={() => toggleSave(post.postId)}
-                onCookThis={() =>
-                  navigation.navigate('Cook', { postId: post.postId, initialServings: 2 })
-                }
-              />
-            </View>
-          ))}
+          {filtered.map((post) => {
+            const cooked = isCooked(post.postId);
+            return (
+              <View key={post.postId} style={styles.item}>
+                <View style={styles.statusRow}>
+                  <Text style={styles.statusBadge}>
+                    {cooked ? 'Cooked' : 'Saved'}
+                  </Text>
+                </View>
+                <PostCard
+                  post={post}
+                  showActions
+                  saved={isSaved(post.postId)}
+                  onToggleSave={() => toggleSave(post.postId)}
+                  onCookThis={() =>
+                    navigation.navigate('Cook', { postId: post.postId, initialServings: 2 })
+                  }
+                />
+                <View style={styles.cookedToggleRow}>
+                  <Button
+                    title={cooked ? 'Mark as saved' : 'Mark as cooked'}
+                    variant="secondary"
+                    onPress={() => (cooked ? unmarkCooked(post.postId) : markAsCooked(post.postId))}
+                    style={styles.cookedToggleButton}
+                  />
+                </View>
+              </View>
+            );
+          })}
         </View>
       </View>
     </ScrollView>
@@ -228,6 +244,19 @@ const styles = StyleSheet.create({
   },
   item: {
     marginBottom: spacing.md,
+  },
+  statusRow: {
+    marginBottom: spacing.xs,
+  },
+  statusBadge: {
+    ...typography.caption,
+    color: colors.primary,
+  },
+  cookedToggleRow: {
+    marginTop: spacing.sm,
+  },
+  cookedToggleButton: {
+    alignSelf: 'flex-start',
   },
 });
 

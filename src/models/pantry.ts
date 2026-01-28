@@ -4,6 +4,8 @@ export interface PantryEntry {
   id: string;
   postId: string;
   addedAt: string; // ISO
+  /** Set when user marks "I Cooked This" */
+  cookedAt?: string; // ISO
 }
 
 export interface ShoppingListItem {

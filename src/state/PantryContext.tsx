@@ -7,7 +7,11 @@ const STORAGE_KEY = 'cookpot:pantry';
 interface PantryContextValue {
   entries: PantryEntry[];
   isSaved: (postId: string) => boolean;
+  isCooked: (postId: string) => boolean;
+  getEntry: (postId: string) => PantryEntry | undefined;
   toggleSave: (postId: string) => Promise<void>;
+  markAsCooked: (postId: string) => Promise<void>;
+  unmarkCooked: (postId: string) => Promise<void>;
   remove: (postId: string) => Promise<void>;
 }
 
@@ -40,6 +44,38 @@ export function PantryProvider({ children }: { children: ReactNode }) {
   };
 
   const isSaved = (postId: string) => entries.some((e) => e.postId === postId);
+  const isCooked = (postId: string) =>
+    entries.some((e) => e.postId === postId && e.cookedAt != null);
+  const getEntry = (postId: string) => entries.find((e) => e.postId === postId);
+
+  const markAsCooked = async (postId: string) => {
+    const existing = entries.find((e) => e.postId === postId);
+    const cookedAt = new Date().toISOString();
+    if (existing) {
+      await persist(
+        entries.map((e) =>
+          e.postId === postId ? { ...e, cookedAt } : e,
+        ),
+      );
+    } else {
+      const entry: PantryEntry = {
+        id: `${postId}-${Date.now()}`,
+        postId,
+        addedAt: cookedAt,
+        cookedAt,
+      };
+      await persist([entry, ...entries]);
+    }
+  };
+
+  const unmarkCooked = async (postId: string) => {
+    const existing = entries.find((e) => e.postId === postId);
+    if (!existing) return;
+    const { cookedAt, ...rest } = existing;
+    await persist(
+      entries.map((e) => (e.postId === postId ? { ...rest } : e)),
+    );
+  };
 
   const toggleSave = async (postId: string) => {
     const existing = entries.find((e) => e.postId === postId);
@@ -60,7 +96,18 @@ export function PantryProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <PantryContext.Provider value={{ entries, isSaved, toggleSave, remove }}>
+    <PantryContext.Provider
+      value={{
+        entries,
+        isSaved,
+        isCooked,
+        getEntry,
+        toggleSave,
+        markAsCooked,
+        unmarkCooked,
+        remove,
+      }}
+    >
       {children}
     </PantryContext.Provider>
   );
