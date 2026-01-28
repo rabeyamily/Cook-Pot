@@ -10,6 +10,8 @@ export interface UserProfile {
   cookingLevel: CookingLevel;
   dietaryPreferences: DietaryPreference[];
   profilePhotoUri?: string;
+  /** Optional: space IDs to surface first on Home */
+  preferredSpaces?: string[];
 }
 
 export interface StoredAuthData {

@@ -34,6 +34,8 @@ export interface Post {
   mediaType: MediaType;
   mediaUris: string[]; // first is primary; later ready for carousel
   recipe: RecipeCard;
+  /** At least one, up to two Cooking Space IDs */
+  cookingSpaces: string[];
   createdAt: string; // ISO string for easy backend migration later
 }
 

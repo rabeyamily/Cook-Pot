@@ -22,19 +22,30 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
       (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
     );
 
-    if (!user || !user.dietaryPreferences || user.dietaryPreferences.length === 0) {
-      return sorted;
+    const preferredSpaceIds = user?.preferredSpaces ?? [];
+    const dietaryPrefs = user?.dietaryPreferences ?? [];
+
+    if (preferredSpaceIds.length > 0) {
+      const inSpaces = sorted.filter((post) =>
+        (post.cookingSpaces ?? []).some((id) => preferredSpaceIds.includes(id)),
+      );
+      const rest = sorted.filter(
+        (post) => !inSpaces.some((p) => p.postId === post.postId),
+      );
+      return [...inSpaces, ...rest];
     }
 
-    const prefs = user.dietaryPreferences;
-    const preferred = sorted.filter((post) =>
-      (post.recipe.dietTags ?? []).some((tag) => prefs.includes(tag)),
-    );
-    const others = sorted.filter(
-      (post) => !preferred.some((p) => p.postId === post.postId),
-    );
+    if (dietaryPrefs.length > 0) {
+      const preferred = sorted.filter((post) =>
+        (post.recipe.dietTags ?? []).some((tag) => dietaryPrefs.includes(tag)),
+      );
+      const others = sorted.filter(
+        (post) => !preferred.some((p) => p.postId === post.postId),
+      );
+      return [...preferred, ...others];
+    }
 
-    return [...preferred, ...others];
+    return sorted;
   }, [posts, user]);
 
   return (
@@ -61,6 +72,12 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
           title="Pantry"
           variant="secondary"
           onPress={() => navigation.navigate('Pantry')}
+          style={styles.navButton}
+        />
+        <Button
+          title="Spaces"
+          variant="secondary"
+          onPress={() => navigation.navigate('Spaces')}
           style={styles.navButton}
         />
         <Button

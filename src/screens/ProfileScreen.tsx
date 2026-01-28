@@ -4,6 +4,7 @@ import { colors, typography, spacing } from '../theme';
 import { useAuth } from '../state/AuthContext';
 import { Button, Tag } from '../components';
 import { CookingLevel, DietaryPreference } from '../models/user';
+import { SPACES, getSpaceById } from '../models/space';
 
 const COOKING_LEVELS: CookingLevel[] = ['Beginner', 'Home Cook', 'Advanced'];
 
@@ -24,6 +25,9 @@ export function ProfileScreen() {
   );
   const [dietaryPreferences, setDietaryPreferences] = useState<DietaryPreference[]>(
     user?.dietaryPreferences ?? [],
+  );
+  const [preferredSpaces, setPreferredSpaces] = useState<string[]>(
+    user?.preferredSpaces ?? [],
   );
   const [saving, setSaving] = useState(false);
 
@@ -54,11 +58,20 @@ export function ProfileScreen() {
         displayName,
         cookingLevel,
         dietaryPreferences,
+        preferredSpaces,
       });
       setIsEditing(false);
     } finally {
       setSaving(false);
     }
+  };
+
+  const togglePreferredSpace = (spaceId: string) => {
+    setPreferredSpaces((current) =>
+      current.includes(spaceId)
+        ? current.filter((id) => id !== spaceId)
+        : [...current, spaceId],
+    );
   };
 
   const savedRecipesCount = 12; // static placeholder
@@ -104,6 +117,18 @@ export function ProfileScreen() {
               <Tag key={pref} label={pref} />
             ),
           )}
+        </View>
+      </View>
+
+      <View style={styles.section}>
+        <Text style={styles.sectionLabel}>Preferred spaces</Text>
+        <View style={styles.tagsRow}>
+          {(user.preferredSpaces?.length
+            ? user.preferredSpaces.map((id) => getSpaceById(id)?.name ?? id)
+            : ['None']
+          ).map((label) => (
+            <Tag key={label} label={label} />
+          ))}
         </View>
       </View>
 
@@ -156,6 +181,27 @@ export function ProfileScreen() {
                   <Tag
                     key={pref}
                     label={pref}
+                    selected={selected}
+                    onPress={() => toggleDietary(pref)}
+                    style={[styles.tag, selected && styles.tagSelected]}
+                  />
+                );
+              })}
+            </View>
+          </View>
+
+          <View style={styles.fieldGroup}>
+            <Text style={styles.label}>Preferred spaces</Text>
+            <Text style={styles.hint}>Surfaces these spaces first on Home.</Text>
+            <View style={styles.tagsRow}>
+              {SPACES.map((space) => {
+                const selected = preferredSpaces.includes(space.spaceId);
+                return (
+                  <Tag
+                    key={space.spaceId}
+                    label={space.name}
+                    selected={selected}
+                    onPress={() => togglePreferredSpace(space.spaceId)}
                     style={[styles.tag, selected && styles.tagSelected]}
                   />
                 );
@@ -172,6 +218,7 @@ export function ProfileScreen() {
                 setDisplayName(user.displayName);
                 setCookingLevel(user.cookingLevel);
                 setDietaryPreferences(user.dietaryPreferences);
+                setPreferredSpaces(user.preferredSpaces ?? []);
               }}
               style={styles.actionButton}
             />
@@ -300,6 +347,11 @@ const styles = StyleSheet.create({
     ...typography.caption,
     color: colors.textSecondary,
     marginBottom: spacing.xs,
+  },
+  hint: {
+    ...typography.caption,
+    color: colors.textSecondary,
+    marginBottom: spacing.sm,
   },
   input: {
     ...typography.body,

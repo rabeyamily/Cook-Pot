@@ -38,6 +38,7 @@ const MOCK_POSTS: Post[] = [
       dietTags: ['Vegetarian'],
       cuisine: 'Italian',
     },
+    cookingSpaces: ['italian', '30-min-dinners'],
     createdAt: new Date().toISOString(),
   },
   {
@@ -66,6 +67,7 @@ const MOCK_POSTS: Post[] = [
       dietTags: ['Vegetarian', 'Vegan'],
       cuisine: 'European',
     },
+    cookingSpaces: ['plant-forward', 'comfort-food'],
     createdAt: new Date(Date.now() - 1000 * 60 * 60).toISOString(),
   },
   {
@@ -93,6 +95,7 @@ const MOCK_POSTS: Post[] = [
       dietTags: ['Vegetarian', 'Vegan', 'Halal'],
       cuisine: 'Middle Eastern–inspired',
     },
+    cookingSpaces: ['30-min-dinners', 'student-meals'],
     createdAt: new Date(Date.now() - 1000 * 60 * 120).toISOString(),
   },
 ];
